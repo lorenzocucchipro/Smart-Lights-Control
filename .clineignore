@@ -1,0 +1,8 @@
+# .clineignore
+.gradle/
+.idea/
+**/build/
+*.apk
+*.aab
+local.properties
+gradle/wrapper/
