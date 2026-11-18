@@ -19,10 +19,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.smartlights.control.presentation.ui.theme.SmartLightsTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -167,5 +170,36 @@ fun AssistantBottomBar(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun HouseHeroIllustrationPreview() {
+    SmartLightsTheme { HouseHeroIllustration() }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun StaticControlCardPreview() {
+    SmartLightsTheme {
+        StaticControlCard(
+            icon = Icons.Default.Lightbulb,
+            title = "Entrance window",
+            subtitle = "Closed",
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun ExternalCameraPlaceholderPreview() {
+    SmartLightsTheme { ExternalCameraPlaceholder() }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun AssistantBottomBarPreview() {
+    SmartLightsTheme { AssistantBottomBar() }
 }
 

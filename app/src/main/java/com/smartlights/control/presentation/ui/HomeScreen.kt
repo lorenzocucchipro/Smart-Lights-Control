@@ -37,10 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.smartlights.control.domain.model.Light
 import com.smartlights.control.presentation.mvi.LightsIntent
+import com.smartlights.control.presentation.mvi.LightsUiState
 import com.smartlights.control.presentation.ui.components.AssistantBottomBar
 import com.smartlights.control.presentation.ui.components.ErrorBannerCard
 import com.smartlights.control.presentation.ui.components.ExternalCameraPlaceholder
@@ -48,17 +51,40 @@ import com.smartlights.control.presentation.ui.components.HouseHeroIllustration
 import com.smartlights.control.presentation.ui.components.LightWidgetCard
 import com.smartlights.control.presentation.ui.components.StaticControlCard
 import com.smartlights.control.presentation.ui.theme.BgPrimary
+import com.smartlights.control.presentation.ui.theme.SmartLightsTheme
 import com.smartlights.control.presentation.ui.theme.SurfaceContainer
 import com.smartlights.control.presentation.ui.theme.TextPrimary
 import com.smartlights.control.presentation.ui.theme.TextSecondary
 import com.smartlights.control.presentation.viewmodel.LightsViewModel
 
+// ---------------------------------------------------------------------------
+// Route — thin stateful wrapper; the only place that touches the ViewModel.
+// --------------------------------------------------------------------------- — thin stateful wrapper; the only place that touches the ViewModel.
+// ---------------------------------------------------------------------------
 @Composable
-fun HomeScreen(viewModel: LightsViewModel) {
+fun HomeRoute(
+    viewModel: LightsViewModel,
+    modifier: Modifier = Modifier,
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var pairMenuExpanded by remember { mutableStateOf(false) }
-
     LaunchedEffect(Unit) { viewModel.onIntent(LightsIntent.LoadLights) }
+    HomeScreen(
+        uiState = uiState,
+        onIntent = viewModel::onIntent,
+        modifier = modifier,
+    )
+}
+
+// ---------------------------------------------------------------------------
+// Screen — pure, stateless, previewable.
+// ---------------------------------------------------------------------------
+@Composable
+fun HomeScreen(
+    uiState: LightsUiState,
+    onIntent: (LightsIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var pairMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(containerColor = BgPrimary) { innerPadding ->
         Box(
@@ -88,7 +114,7 @@ fun HomeScreen(viewModel: LightsViewModel) {
                             uiState.lights.forEach { light ->
                                 DropdownMenuItem(
                                     text = { Text(text = light.name) },
-                                    onClick = { viewModel.onIntent(LightsIntent.SelectWidgetLight(light.id)); pairMenuExpanded = false },
+                                    onClick = { onIntent(LightsIntent.SelectWidgetLight(light.id)); pairMenuExpanded = false },
                                 )
                             }
                         }
@@ -104,9 +130,9 @@ fun HomeScreen(viewModel: LightsViewModel) {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             LightWidgetCard(
                                 light = uiState.activeWidgetLight,
-                                onTogglePower = { uiState.activeWidgetLight?.id?.let { viewModel.onIntent(LightsIntent.TogglePower(it)) } },
-                                onBrightnessChange = { b -> uiState.activeWidgetLight?.id?.let { viewModel.onIntent(LightsIntent.UpdateBrightness(it, b)) } },
-                                onOpenDrawer = { uiState.activeWidgetLight?.id?.let { viewModel.onIntent(LightsIntent.OpenDrawer(it)) } },
+                                onTogglePower = { uiState.activeWidgetLight?.id?.let { onIntent(LightsIntent.TogglePower(it)) } },
+                                onBrightnessChange = { b -> uiState.activeWidgetLight?.id?.let { onIntent(LightsIntent.UpdateBrightness(it, b)) } },
+                                onOpenDrawer = { uiState.activeWidgetLight?.id?.let { onIntent(LightsIntent.OpenDrawer(it)) } },
                                 modifier = Modifier.weight(1f),
                             )
                             StaticControlCard(icon = Icons.Default.Window, title = "Entrance window", subtitle = "Closed", modifier = Modifier.weight(1f))
@@ -126,7 +152,7 @@ fun HomeScreen(viewModel: LightsViewModel) {
             if (banner != null && uiState.drawerLight == null) {
                 ErrorBannerCard(
                     banner = banner,
-                    onDismiss = { viewModel.onIntent(LightsIntent.DismissError) },
+                    onDismiss = { onIntent(LightsIntent.DismissError) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(horizontal = 16.dp)
@@ -137,3 +163,19 @@ fun HomeScreen(viewModel: LightsViewModel) {
     }
 }
 
+private val previewLights = listOf(
+    Light(id = "bed_light", name = "Bed light", dimmable = true, isOn = true, brightness = 75, lastBrightness = 75),
+    Light(id = "desk_lamp", name = "Desk lamp", dimmable = true, isOn = false, brightness = 0, lastBrightness = 50),
+    Light(id = "hallway", name = "Hallway", dimmable = false, isOn = true, brightness = 0, lastBrightness = 0),
+)
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun HomeScreenPreview() {
+    SmartLightsTheme {
+        HomeScreen(
+            uiState = LightsUiState(lights = previewLights, activeWidgetLightId = "bed_light"),
+            onIntent = {},
+        )
+    }
+}

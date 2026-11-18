@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.smartlights.control.di.AppContainer
-import com.smartlights.control.presentation.ui.HomeScreen
+import com.smartlights.control.presentation.ui.HomeRoute
 import com.smartlights.control.presentation.ui.theme.SmartLightsTheme
 import com.smartlights.control.presentation.viewmodel.LightsViewModel
 
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             SmartLightsTheme {
-                HomeScreen(viewModel)
+                HomeRoute(viewModel = viewModel)
             }
         }
     }

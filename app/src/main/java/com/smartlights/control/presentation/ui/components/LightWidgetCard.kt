@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.smartlights.control.domain.model.Light
 import com.smartlights.control.presentation.ui.theme.AccentBlue
+import com.smartlights.control.presentation.ui.theme.SmartLightsTheme
 import com.smartlights.control.presentation.ui.theme.SurfaceCard
 import com.smartlights.control.presentation.ui.theme.TextPrimary
 import com.smartlights.control.presentation.ui.theme.TextSecondary
@@ -72,3 +74,56 @@ fun LightWidgetCard(
         }
     }
 }
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun LightWidgetCardOnDimmablePreview() {
+    SmartLightsTheme {
+        LightWidgetCard(
+            light = Light(id = "bed_light", name = "Bed light", dimmable = true, isOn = true, brightness = 75, lastBrightness = 75),
+            onTogglePower = {},
+            onBrightnessChange = {},
+            onOpenDrawer = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun LightWidgetCardOffDimmablePreview() {
+    SmartLightsTheme {
+        LightWidgetCard(
+            light = Light(id = "desk_lamp", name = "Desk lamp", dimmable = true, isOn = false, brightness = 0, lastBrightness = 50),
+            onTogglePower = {},
+            onBrightnessChange = {},
+            onOpenDrawer = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun LightWidgetCardNonDimmablePreview() {
+    SmartLightsTheme {
+        LightWidgetCard(
+            light = Light(id = "hallway", name = "Hallway", dimmable = false, isOn = true, brightness = 0, lastBrightness = 0),
+            onTogglePower = {},
+            onBrightnessChange = {},
+            onOpenDrawer = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0B0E14)
+@Composable
+private fun LightWidgetCardNullPreview() {
+    SmartLightsTheme {
+        LightWidgetCard(
+            light = null,
+            onTogglePower = {},
+            onBrightnessChange = {},
+            onOpenDrawer = {},
+        )
+    }
+}
+
