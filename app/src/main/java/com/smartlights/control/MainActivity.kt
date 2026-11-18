@@ -2,46 +2,30 @@ package com.smartlights.control
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.smartlights.control.ui.theme.SmartLightsControlTheme
+import androidx.activity.viewModels
+import com.smartlights.control.di.AppContainer
+import com.smartlights.control.presentation.ui.HomeScreen
+import com.smartlights.control.presentation.ui.theme.SmartLightsTheme
+import com.smartlights.control.presentation.viewmodel.LightsViewModel
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: LightsViewModel by viewModels {
+        LightsViewModel.provideFactory(AppContainer.lightRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+        )
         setContent {
-            SmartLightsControlTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            SmartLightsTheme {
+                HomeScreen(viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SmartLightsControlTheme {
-        Greeting("Android")
     }
 }
