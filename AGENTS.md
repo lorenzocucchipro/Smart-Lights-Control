@@ -32,3 +32,21 @@ Single-screen Android prototype reproducing the **Manage Lights** widget on the 
 - **Scoped Edits:** Modify only the files explicitly requested in the current task. Do not scan unrelated directories or rewrite working modules.
 - **Verification Command:** Run `./gradlew testDebugUnitTest` after logic or state changes and fix any compilation/test failures before completing the task.
 - **Concise Responses:** Summarize changes in brief bullet points; omit lengthy explanations.
+
+## Git Commit Protocol
+- **Explicit Trigger Only:** NEVER stage (`git add`) or commit (`git commit`) changes automatically. Execute a commit only when explicitly instructed by the user after diff and test verification.
+- **Atomic Scope:** Keep commits small and single-purpose, aligned with architectural boundaries (`domain`, `data`, `mvi`, `ui`, `test`).
+- **Commit Message Format (Conventional Commits):**
+  - **Header:** `<type>(<scope>): <imperative summary>` (max 72 chars; allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`).
+  - **Body:** Provide a clear, structured explanation covering:
+    1. **What** changed across modules or components.
+    2. **Why** it was structured that way (architectural rationale, state invariants, UX rules, or edge cases handled).
+  - **Example:**
+    ```text
+    feat(mvi): implement optimistic state transitions and rollback in LightsViewModel
+
+    - Define immutable LightsUiState and LightsIntent as single source of truth for widget and drawer
+    - Apply optimistic power toggles with lastBrightness memory and pre-action snapshot rollback
+    - Debounce brightness service calls (250ms) while preserving live UI progress updates
+    ```
+- **No AI Attribution:** Strictly omit `Co-Authored-By` trailers, `Generated with` footers, or any mention of AI tools in commit headers, bodies, or metadata.
