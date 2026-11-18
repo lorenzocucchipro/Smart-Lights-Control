@@ -27,6 +27,8 @@ Single-screen Android prototype reproducing the **Manage Lights** widget on the 
 ## UI, Accessibility & Code Standards
 - **Touch Targets & Semantics:** Enforce `Modifier.defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)` and clear `semantics` / `contentDescription` on the widget, toggle buttons, drawer trigger, and brightness slider.
 - **Clean Code:** Keep composables stateless and previewable; hoist all state and intents to `LightsViewModel`. No dead code or placeholder TODOs.
+- **Pure MVI State Hoisting:** Never pass a `ViewModel` into screen or component composables. Screen composables must accept immutable `uiState` and `onIntent: (Intent) -> Unit` parameters, wrapped by a thin `*Route` composable at the Activity/navigation boundary.
+- **Mandatory Previews:** Every `@Composable` component and screen file must include at least one `@Preview` function wrapped in `SmartLightsTheme` with realistic sample state.
 
 ## Execution & Token-Efficiency Protocol
 - **Scoped Edits:** Modify only the files explicitly requested in the current task. Do not scan unrelated directories or rewrite working modules.
