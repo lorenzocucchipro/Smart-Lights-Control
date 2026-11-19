@@ -84,15 +84,12 @@ class LightsViewModel(
     private fun handleUpdateBrightness(lightId: String, brightness: Int) {
         val current = _uiState.value.lights.find { it.id == lightId } ?: return
         if (!current.dimmable) return
-        if (!preDragSnapshots.containsKey(lightId)) {
-            preDragSnapshots[lightId] = current
-        }
+        val dragStartSnapshot = preDragSnapshots.getOrPut(lightId) { current }
         val optimisticLight = current.withBrightness(brightness)
         _uiState.update { state ->
             state.copy(lights = state.lights.map { if (it.id == lightId) optimisticLight else it })
         }
-        brightnessDebounceJobs.remove(lightId)?.cancel()
-        val dragStartSnapshot = preDragSnapshots[lightId]!!
+        brightnessDebounceJobs[lightId]?.cancel()
         brightnessDebounceJobs[lightId] = viewModelScope.launch {
             delay(debounceMs)
             val clamped = brightness.coerceIn(0, 100)

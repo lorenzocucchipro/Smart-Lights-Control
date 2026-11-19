@@ -21,8 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,8 +67,13 @@ fun LightWidgetCard(
         return
     }
 
+    val currentLight by rememberUpdatedState(light)
+    val currentOnTogglePower by rememberUpdatedState(onTogglePower)
+    val currentOnBrightnessChange by rememberUpdatedState(onBrightnessChange)
+
     var cardWidthPx by remember { mutableFloatStateOf(1f) }
     var dragAccumulated by remember { mutableFloatStateOf(0f) }
+    var dragStartBrightness by remember { mutableIntStateOf(0) }
     var swipeTriggered by remember { mutableStateOf(false) }
 
     val fillFraction = when {
@@ -100,22 +107,26 @@ fun LightWidgetCard(
                         )
                     }
                 }
-                .pointerInput(light.id, light.dimmable) {
+                .pointerInput(light.id) {
                     detectHorizontalDragGestures(
-                        onDragStart = { dragAccumulated = 0f; swipeTriggered = false },
+                        onDragStart = {
+                            dragAccumulated = 0f
+                            dragStartBrightness = currentLight?.brightness ?: 0
+                            swipeTriggered = false
+                        },
                         onDragEnd = { dragAccumulated = 0f; swipeTriggered = false },
                         onDragCancel = { dragAccumulated = 0f; swipeTriggered = false },
                         onHorizontalDrag = { _, dragAmount ->
-                            if (light.dimmable) {
-                                val delta = (dragAmount / cardWidthPx * 100f).toInt()
-                                val newBrightness = (light.brightness + delta).coerceIn(0, 100)
-                                if (newBrightness != light.brightness) onBrightnessChange(newBrightness)
+                            dragAccumulated += dragAmount
+                            val l = currentLight ?: return@detectHorizontalDragGestures
+                            if (l.dimmable) {
+                                val newBrightness = (dragStartBrightness + (dragAccumulated / cardWidthPx * 100f).toInt()).coerceIn(0, 100)
+                                currentOnBrightnessChange(newBrightness)
                             } else {
-                                dragAccumulated += dragAmount
                                 val threshold = 24.dp.toPx()
                                 if (!swipeTriggered && kotlin.math.abs(dragAccumulated) >= threshold) {
                                     swipeTriggered = true
-                                    onTogglePower()
+                                    currentOnTogglePower()
                                 }
                             }
                         },
