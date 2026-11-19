@@ -75,7 +75,7 @@ class LightsViewModelTest {
         val before = vm.uiState.value.lights.find { it.id == bedLightId }!!
         service.failureRate = 1.0
         vm.onIntent(LightsIntent.TogglePower(bedLightId))
-        advanceUntilIdle()
+        advanceTimeBy(1000L)
         val after = vm.uiState.value.lights.find { it.id == bedLightId }!!
         assertEquals(before.isOn, after.isOn)
         assertNotNull(vm.uiState.value.errorBanner)
@@ -122,8 +122,7 @@ class LightsViewModelTest {
         val snapshot = vm.uiState.value.lights.find { it.id == bedLightId }!!
         service.failureRate = 1.0
         vm.onIntent(LightsIntent.UpdateBrightness(bedLightId, 40))
-        advanceTimeBy(300L)
-        advanceUntilIdle()
+        advanceTimeBy(1000L)
         val rolledBack = vm.uiState.value.lights.find { it.id == bedLightId }!!
         assertEquals(snapshot.brightness, rolledBack.brightness)
         assertNotNull(vm.uiState.value.errorBanner)
@@ -136,7 +135,7 @@ class LightsViewModelTest {
         loadLights(vm)
         service.failureRate = 1.0
         vm.onIntent(LightsIntent.OpenDrawer(bedLightId))
-        advanceUntilIdle()
+        advanceTimeBy(1000L)
         assertNull(vm.uiState.value.drawerLightId)
         assertNotNull(vm.uiState.value.errorBanner)
     }

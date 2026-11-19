@@ -107,7 +107,10 @@ private fun DimmableSection(light: Light, onBrightnessChange: (Int) -> Unit) {
     }
     Slider(
         value = brightnessValue.toFloat(),
-        onValueChange = { onBrightnessChange(it.roundToInt()) },
+        onValueChange = { raw ->
+            val rounded = raw.roundToInt()
+            if (rounded != brightnessValue) onBrightnessChange(rounded)
+        },
         valueRange = 0f..100f,
         colors = SliderDefaults.colors(
             thumbColor = AccentBlue,

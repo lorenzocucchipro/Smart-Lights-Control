@@ -1,6 +1,7 @@
 package com.smartlights.control.presentation.ui.components
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -75,6 +76,7 @@ fun LightWidgetCard(
     var dragAccumulated by remember { mutableFloatStateOf(0f) }
     var dragStartBrightness by remember { mutableIntStateOf(0) }
     var swipeTriggered by remember { mutableStateOf(false) }
+    var isDragging by remember { mutableStateOf(false) }
 
     val fillFraction = when {
         !light.isOn -> 0f
@@ -113,9 +115,10 @@ fun LightWidgetCard(
                             dragAccumulated = 0f
                             dragStartBrightness = currentLight?.brightness ?: 0
                             swipeTriggered = false
+                            isDragging = true
                         },
-                        onDragEnd = { dragAccumulated = 0f; swipeTriggered = false },
-                        onDragCancel = { dragAccumulated = 0f; swipeTriggered = false },
+                        onDragEnd = { dragAccumulated = 0f; swipeTriggered = false; isDragging = false },
+                        onDragCancel = { dragAccumulated = 0f; swipeTriggered = false; isDragging = false },
                         onHorizontalDrag = { _, dragAmount ->
                             dragAccumulated += dragAmount
                             val l = currentLight ?: return@detectHorizontalDragGestures
@@ -140,6 +143,11 @@ fun LightWidgetCard(
                     .weight(1f)
                     .fillMaxHeight()
                     .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
+                    .pointerInput(light.id) {
+                        detectTapGestures(onTap = {
+                            if (!isDragging) currentOnTogglePower()
+                        })
+                    }
                     .padding(12.dp),
             ) {
                 Icon(

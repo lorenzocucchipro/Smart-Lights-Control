@@ -46,21 +46,24 @@ class MockLightService(
         delayFn(delay)
     }
 
-    private fun maybeFailure() {
+    private fun maybeFailure(operation: String, id: String? = null) {
         if (random.nextDouble() < failureRate) {
-            throw LightServiceException("Simulated device error")
+            val idPart = if (id != null) ", id=$id" else ""
+            throw LightServiceException(
+                "Simulated failure on $operation($idPart, failureRate=$failureRate)"
+            )
         }
     }
 
     override suspend fun list(): List<Light> {
         simulateLatency()
-        maybeFailure()
+        maybeFailure("list")
         return mutex.withLock { lights.values.toList() }
     }
 
     override suspend fun get(id: String): Light {
         simulateLatency()
-        maybeFailure()
+        maybeFailure("get", id)
         return mutex.withLock {
             lights[id] ?: throw LightServiceException("Light not found: $id")
         }
@@ -68,7 +71,7 @@ class MockLightService(
 
     override suspend fun setPower(id: String, isOn: Boolean): Light {
         simulateLatency()
-        maybeFailure()
+        maybeFailure("setPower", id)
         return mutex.withLock {
             val current = lights[id] ?: throw LightServiceException("Light not found: $id")
             val updated = current.withToggledPower().let {
@@ -87,7 +90,7 @@ class MockLightService(
 
     override suspend fun setBrightness(id: String, value: Int): Light {
         simulateLatency()
-        maybeFailure()
+        maybeFailure("setBrightness", id)
         return mutex.withLock {
             val current = lights[id] ?: throw LightServiceException("Light not found: $id")
             val updated = current.withBrightness(value)

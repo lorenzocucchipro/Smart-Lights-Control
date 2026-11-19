@@ -26,6 +26,16 @@ class LightsViewModel(
 
     private val brightnessDebounceJobs: MutableMap<String, Job> = mutableMapOf()
     private val preDragSnapshots: MutableMap<String, Light> = mutableMapOf()
+    private var errorDismissJob: Job? = null
+
+    private fun emitErrorBanner() {
+        errorDismissJob?.cancel()
+        _uiState.update { it.copy(errorBanner = ErrorBanner()) }
+        errorDismissJob = viewModelScope.launch {
+            delay(3500L)
+            _uiState.update { it.copy(errorBanner = null) }
+        }
+    }
 
     fun onIntent(intent: LightsIntent) {
         when (intent) {
@@ -35,7 +45,10 @@ class LightsViewModel(
             is LightsIntent.UpdateBrightness -> handleUpdateBrightness(intent.lightId, intent.brightness)
             is LightsIntent.OpenDrawer -> handleOpenDrawer(intent.lightId)
             is LightsIntent.CloseDrawer -> _uiState.update { it.copy(drawerLightId = null) }
-            is LightsIntent.DismissError -> _uiState.update { it.copy(errorBanner = null) }
+            is LightsIntent.DismissError -> {
+                errorDismissJob?.cancel()
+                _uiState.update { it.copy(errorBanner = null) }
+            }
         }
     }
 
@@ -47,7 +60,8 @@ class LightsViewModel(
                     _uiState.update { it.copy(lights = lights, isLoading = false) }
                 }
                 .onFailure {
-                    _uiState.update { it.copy(isLoading = false, errorBanner = ErrorBanner()) }
+                    _uiState.update { it.copy(isLoading = false) }
+                    emitErrorBanner()
                 }
         }
     }
@@ -74,9 +88,9 @@ class LightsViewModel(
                     _uiState.update { state ->
                         state.copy(
                             lights = state.lights.map { if (it.id == lightId) current else it },
-                            errorBanner = ErrorBanner(),
                         )
                     }
+                    emitErrorBanner()
                 }
         }
     }
@@ -105,9 +119,9 @@ class LightsViewModel(
                     _uiState.update { state ->
                         state.copy(
                             lights = state.lights.map { if (it.id == lightId) dragStartSnapshot else it },
-                            errorBanner = ErrorBanner(),
                         )
                     }
+                    emitErrorBanner()
                 }
         }
     }
@@ -127,8 +141,9 @@ class LightsViewModel(
                 }
                 .onFailure {
                     _uiState.update {
-                        it.copy(drawerLightId = null, isOpeningDrawer = false, errorBanner = ErrorBanner())
+                        it.copy(drawerLightId = null, isOpeningDrawer = false)
                     }
+                    emitErrorBanner()
                 }
         }
     }
