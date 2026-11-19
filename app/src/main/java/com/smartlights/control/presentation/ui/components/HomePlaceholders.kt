@@ -166,7 +166,7 @@ fun ExternalCameraPlaceholder(modifier: Modifier = Modifier) {
 fun AssistantBottomBar(modifier: Modifier = Modifier) {
     var text by remember { mutableStateOf("") }
     Column(
-        modifier = modifier.fillMaxWidth().imePadding(),
+        modifier = modifier.fillMaxWidth().imePadding().padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
