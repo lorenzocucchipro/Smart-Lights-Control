@@ -1,16 +1,19 @@
 package com.smartlights.control.presentation.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -93,7 +97,8 @@ fun LightWidgetCard(
 
     Surface(
         modifier = modifier
-            .height(108.dp)
+            .heightIn(min = 108.dp)
+            .height(IntrinsicSize.Min)
             .semantics { contentDescription = "${light.name}, $statusText. $toggleAction" },
         shape = RoundedCornerShape(16.dp),
         color = SurfaceCard,
@@ -109,47 +114,47 @@ fun LightWidgetCard(
                             size = androidx.compose.ui.geometry.Size(size.width * fillFraction, size.height),
                         )
                     }
-                }
-                .pointerInput(light.id) {
-                    detectHorizontalDragGestures(
-                        onDragStart = {
-                            dragAccumulated = 0f
-                            dragStartBrightness = currentLight?.brightness ?: 0
-                            swipeTriggered = false
-                            isDragging = true
-                        },
-                        onDragEnd = { dragAccumulated = 0f; swipeTriggered = false; isDragging = false },
-                        onDragCancel = { dragAccumulated = 0f; swipeTriggered = false; isDragging = false },
-                        onHorizontalDrag = { _, dragAmount ->
-                            dragAccumulated += dragAmount
-                            val l = currentLight ?: return@detectHorizontalDragGestures
-                            if (l.dimmable) {
-                                val newBrightness = (dragStartBrightness + (dragAccumulated / cardWidthPx * 100f).toInt()).coerceIn(0, 100)
-                                currentOnBrightnessChange(newBrightness)
-                            } else {
-                                val threshold = 24.dp.toPx()
-                                if (!swipeTriggered && kotlin.math.abs(dragAccumulated) >= threshold) {
-                                    swipeTriggered = true
-                                    currentOnTogglePower()
-                                }
-                            }
-                        },
-                    )
-                }
-                .padding(start = 14.dp, end = 6.dp, top = 14.dp, bottom = 14.dp),
+                },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Main tap area
+            // Left zone: tap-to-toggle + horizontal brightness swipe
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .pointerInput(light.id) {
+                        detectHorizontalDragGestures(
+                            onDragStart = {
+                                dragAccumulated = 0f
+                                dragStartBrightness = currentLight?.brightness ?: 0
+                                swipeTriggered = false
+                                isDragging = true
+                            },
+                            onDragEnd = { dragAccumulated = 0f; swipeTriggered = false; isDragging = false },
+                            onDragCancel = { dragAccumulated = 0f; swipeTriggered = false; isDragging = false },
+                            onHorizontalDrag = { _, dragAmount ->
+                                dragAccumulated += dragAmount
+                                val l = currentLight ?: return@detectHorizontalDragGestures
+                                if (l.dimmable) {
+                                    val newBrightness = (dragStartBrightness + (dragAccumulated / cardWidthPx * 100f).toInt()).coerceIn(0, 100)
+                                    currentOnBrightnessChange(newBrightness)
+                                } else {
+                                    val threshold = 24.dp.toPx()
+                                    if (!swipeTriggered && kotlin.math.abs(dragAccumulated) >= threshold) {
+                                        swipeTriggered = true
+                                        currentOnTogglePower()
+                                    }
+                                }
+                            },
+                        )
+                    }
+                    .pointerInput(light.id) {
                         detectTapGestures(onTap = {
                             if (!isDragging) currentOnTogglePower()
                         })
-                    },
+                    }
+                    .padding(start = 14.dp, top = 14.dp, bottom = 14.dp, end = 8.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Icon(
@@ -158,6 +163,7 @@ fun LightWidgetCard(
                     tint = if (light.isOn) BulbAmber else TextSecondary,
                     modifier = Modifier.size(20.dp),
                 )
+                Spacer(modifier = Modifier.height(18.dp))
                 Column {
                     Text(
                         text = light.name,
@@ -172,23 +178,18 @@ fun LightWidgetCard(
                 }
             }
 
-            // Chevron drawer trigger
+            // Right zone: chevron drawer trigger — independent touch area
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .fillMaxHeight()
+                    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
                     .semantics { contentDescription = "Open ${light.name} details" }
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                if (event.changes.any { it.pressed.not() && it.previousPressed }) {
-                                    onOpenDrawer()
-                                }
-                            }
-                        }
-                    },
+                    .clickable(
+                        role = Role.Button,
+                        onClickLabel = "Open ${light.name} details",
+                        onClick = { onOpenDrawer() },
+                    ),
             ) {
                 Text(text = ">", color = TextSecondary, fontSize = 14.sp, modifier = Modifier.padding(end = 12.dp))
             }
