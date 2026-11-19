@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,16 +68,41 @@ fun StaticControlCard(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.defaultMinSize(minHeight = 96.dp),
+        modifier = modifier.height(108.dp),
         shape = RoundedCornerShape(16.dp),
         color = SurfaceCard,
     ) {
-        Box(modifier = Modifier.padding(12.dp)) {
-            Icon(imageVector = icon, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp).align(Alignment.TopStart))
-            Text(text = ">", color = TextSecondary, fontSize = 14.sp, modifier = Modifier.align(Alignment.TopEnd))
-            Column(modifier = Modifier.align(Alignment.BottomStart)) {
-                Text(text = title, color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                if (subtitle != null) Text(text = subtitle, color = TextSecondary, fontSize = 11.sp)
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 14.dp, end = 6.dp, top = 14.dp, bottom = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Icon(imageVector = icon, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                Column {
+                    Text(
+                        text = title,
+                        color = TextPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (subtitle != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(text = subtitle, color = TextSecondary, fontSize = 11.sp)
+                    }
+                }
+            }
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.defaultMinSize(minWidth = 44.dp, minHeight = 44.dp),
+            ) {
+                Text(text = ">", color = TextSecondary, fontSize = 14.sp)
             }
         }
     }
@@ -86,28 +115,34 @@ fun ExternalCameraPlaceholder(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(20.dp),
         color = SurfaceContainer,
     ) {
-        Box(modifier = Modifier.padding(10.dp)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(RoundedCornerShape(14.dp)),
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.hose_one),
-                    contentDescription = "External camera",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.matchParentSize(),
-                )
-                Text(
-                    text = "External",
-                    color = TextPrimary.copy(alpha = 0.85f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
+        LazyRow(
+            modifier = Modifier.padding(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            val drawables = listOf(R.drawable.hose_one, R.drawable.house_two)
+            items(drawables.size) { index ->
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(10.dp),
-                )
+                        .fillParentMaxWidth(0.90f)
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(14.dp)),
+                ) {
+                    Image(
+                        painter = painterResource(id = drawables[index]),
+                        contentDescription = "External camera",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                    Text(
+                        text = "External",
+                        color = TextPrimary.copy(alpha = 0.85f),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(12.dp),
+                    )
+                }
             }
         }
     }

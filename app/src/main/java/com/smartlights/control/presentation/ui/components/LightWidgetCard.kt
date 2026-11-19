@@ -2,6 +2,7 @@ package com.smartlights.control.presentation.ui.components
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -92,7 +93,7 @@ fun LightWidgetCard(
 
     Surface(
         modifier = modifier
-            .defaultMinSize(minHeight = 104.dp)
+            .height(108.dp)
             .semantics { contentDescription = "${light.name}, $statusText. $toggleAction" },
         shape = RoundedCornerShape(16.dp),
         color = SurfaceCard,
@@ -134,11 +135,12 @@ fun LightWidgetCard(
                             }
                         },
                     )
-                },
-            verticalAlignment = Alignment.Bottom,
+                }
+                .padding(start = 14.dp, end = 6.dp, top = 14.dp, bottom = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Main tap area
-            Box(
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
@@ -147,16 +149,16 @@ fun LightWidgetCard(
                         detectTapGestures(onTap = {
                             if (!isDragging) currentOnTogglePower()
                         })
-                    }
-                    .padding(12.dp),
+                    },
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Icon(
                     imageVector = if (light.isOn) Icons.Rounded.Lightbulb else Icons.Outlined.Lightbulb,
                     contentDescription = null,
                     tint = if (light.isOn) BulbAmber else TextSecondary,
-                    modifier = Modifier.size(20.dp).align(Alignment.TopStart),
+                    modifier = Modifier.size(20.dp),
                 )
-                Column(modifier = Modifier.align(Alignment.BottomStart)) {
+                Column {
                     Text(
                         text = light.name,
                         color = TextPrimary,

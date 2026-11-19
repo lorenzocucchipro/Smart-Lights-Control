@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -53,7 +52,6 @@ import com.smartlights.control.presentation.ui.theme.BgPrimary
 import com.smartlights.control.presentation.ui.theme.SmartLightsTheme
 import com.smartlights.control.presentation.ui.theme.SurfaceContainer
 import com.smartlights.control.presentation.ui.theme.TextPrimary
-import com.smartlights.control.presentation.ui.theme.TextSecondary
 
 // ---------------------------------------------------------------------------
 // Screen — pure, stateless, previewable.
@@ -66,13 +64,14 @@ fun HomeScreen(
 ) {
     var pairMenuExpanded by remember { mutableStateOf(false) }
 
-    Scaffold(containerColor = BgPrimary) { innerPadding ->
+    Scaffold(
+        containerColor = BgPrimary,
+        bottomBar = { AssistantBottomBar(modifier = Modifier.navigationBarsPadding()) },
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .statusBarsPadding()
-                .navigationBarsPadding(),
+                .padding(innerPadding),
         ) {
             Column(
                 modifier = Modifier
@@ -88,7 +87,7 @@ fun HomeScreen(
                     Text(text = "At home", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
                     Box {
                         Surface(onClick = { pairMenuExpanded = true }, shape = RoundedCornerShape(20.dp), color = Color(0xFF1C2128)) {
-                            Text(text = "Pair buttons", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                            Text(text = "Pair buttons", color = TextPrimary, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
                         }
                         DropdownMenu(expanded = pairMenuExpanded, onDismissRequest = { pairMenuExpanded = false }) {
                             uiState.lights.forEach { light ->
@@ -100,7 +99,7 @@ fun HomeScreen(
                         }
                     }
                     IconButton(onClick = {}) {
-                        Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = "More options", tint = TextSecondary)
+                        Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = "More options", tint = TextPrimary)
                     }
                 }
                 HouseHeroIllustration()
@@ -124,7 +123,6 @@ fun HomeScreen(
                     }
                 }
                 ExternalCameraPlaceholder()
-                AssistantBottomBar()
                 Spacer(modifier = Modifier.height(8.dp))
             }
             // Error banner overlay
@@ -135,8 +133,7 @@ fun HomeScreen(
                     onDismiss = { onIntent(LightsIntent.DismissError) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 72.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
             }
         }
