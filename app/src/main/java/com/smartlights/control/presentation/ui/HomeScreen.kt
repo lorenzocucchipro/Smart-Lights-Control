@@ -1,5 +1,6 @@
 package com.smartlights.control.presentation.ui
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,9 +65,13 @@ fun HomeScreen(
     onIntent: (LightsIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val focusManager = LocalFocusManager.current
     var pairMenuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
+        modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = { focusManager.clearFocus() })
+        },
         containerColor = BgPrimary,
         bottomBar = { AssistantBottomBar(modifier = Modifier.navigationBarsPadding()) },
     ) { innerPadding ->
@@ -87,7 +94,12 @@ fun HomeScreen(
                     Text(text = "At home", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
                     Box {
                         Surface(onClick = { pairMenuExpanded = true }, shape = RoundedCornerShape(20.dp), color = Color(0xFF1C2128)) {
-                            Text(text = "Pair buttons", color = TextPrimary, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                            Text(
+                                text = "Pair buttons",
+                                color = TextPrimary,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
                         }
                         DropdownMenu(expanded = pairMenuExpanded, onDismissRequest = { pairMenuExpanded = false }) {
                             uiState.lights.forEach { light ->
@@ -114,10 +126,20 @@ fun HomeScreen(
                                 onOpenDrawer = { uiState.activeWidgetLight?.id?.let { onIntent(LightsIntent.OpenDrawer(it)) } },
                                 modifier = Modifier.weight(1f),
                             )
-                            StaticControlCard(icon = Icons.Default.Window, title = "Entrance window", subtitle = "Closed", modifier = Modifier.weight(1f))
+                            StaticControlCard(
+                                icon = Icons.Default.Window,
+                                title = "Entrance window",
+                                subtitle = "Closed",
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            StaticControlCard(icon = Icons.Default.Blinds, title = "Close all blinds", subtitle = null, modifier = Modifier.weight(1f))
+                            StaticControlCard(
+                                icon = Icons.Default.Blinds,
+                                title = "Close all blinds",
+                                subtitle = null,
+                                modifier = Modifier.weight(1f)
+                            )
                             StaticControlCard(icon = Icons.Default.Nightlight, title = "Night time", subtitle = null, modifier = Modifier.weight(1f))
                         }
                     }
