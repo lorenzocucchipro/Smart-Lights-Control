@@ -29,6 +29,8 @@ Single-screen Android prototype reproducing the **Manage Lights** widget on the 
 - **Clean Code:** Keep composables stateless and previewable; hoist all state and intents to `LightsViewModel`. No dead code or placeholder TODOs.
 - **Pure MVI State Hoisting:** Never pass a `ViewModel` into screen or component composables. Screen composables must accept immutable `uiState` and `onIntent: (Intent) -> Unit` parameters, wrapped by a thin `*Route` composable at the Activity/navigation boundary.
 - **Mandatory Previews:** Every `@Composable` component and screen file must include at least one `@Preview` function wrapped in `SmartLightsTheme` with realistic sample state.
+- **Route / Screen File Separation:** Place stateful `*Route` composables (which collect `ViewModel` state) in their own dedicated `*Route.kt` file, completely separate from stateless `*Screen.kt` files.
+- **Use Project Drawables:** Never generate custom `Canvas` illustrations when image assets exist in `res/drawable*`; render them with `Image(painterResource(...))`.
 
 ## Execution & Token-Efficiency Protocol
 - **Scoped Edits:** Modify only the files explicitly requested in the current task. Do not scan unrelated directories or rewrite working modules.
