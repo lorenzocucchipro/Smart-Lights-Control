@@ -110,6 +110,7 @@ val mockLightService = MockLightService(
 | Multi-room lists | Add `Room` domain model and `selectedRoomId` to `LightsUiState`. |
 | Offline-first caching | Room database in `data/`; repository becomes a write-ahead sync layer. |
 | Dependency injection | Swap `AppContainer` for Hilt modules without touching `domain/` or `presentation/`. |
+| Propject structure | Scaling the app to multi-room or multi-device flows, it would be recommended to split `presentation/ui` into feature packages. |
 
 ---
 
